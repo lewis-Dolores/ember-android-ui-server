@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ember UI Server</string>
+    <string name="service_description">Exposes a WebSocket server so the ember Python library can control this device without ADB.</string>
+</resources>
