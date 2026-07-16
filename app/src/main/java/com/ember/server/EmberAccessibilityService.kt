@@ -33,7 +33,29 @@ class EmberAccessibilityService : AccessibilityService() {
         Log.i(TAG, "Started on ws://0.0.0.0:$port")
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent) = Unit
+    override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
+            val packageName = event.packageName?.toString() ?: ""
+            val texts = event.text.map { it?.toString() ?: "" }
+            val notification = event.parcelableData as? android.app.Notification
+            val title = notification?.extras?.getCharSequence(android.app.Notification.EXTRA_TITLE)?.toString() ?: ""
+            val text = notification?.extras?.getCharSequence(android.app.Notification.EXTRA_TEXT)?.toString() ?: ""
+            val subText = notification?.extras?.getCharSequence(android.app.Notification.EXTRA_SUB_TEXT)?.toString() ?: ""
+            val tickerText = notification?.tickerText?.toString() ?: ""
+
+            val json = JSONObject().apply {
+                put("type", "notification")
+                put("event", "notification")
+                put("package", packageName)
+                put("title", title)
+                put("text", text)
+                if (subText.isNotEmpty()) put("sub_text", subText)
+                if (tickerText.isNotEmpty()) put("ticker_text", tickerText)
+                put("texts", org.json.JSONArray(texts))
+            }
+            server?.broadcast(json.toString())
+        }
+    }
     override fun onInterrupt() = Unit
 
     override fun onDestroy() {
